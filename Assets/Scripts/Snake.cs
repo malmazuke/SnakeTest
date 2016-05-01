@@ -60,12 +60,16 @@ public class Snake : MonoBehaviour {
             previousNode = node.Previous;
         }
 
+        LookAtMouse ();
+        rb.velocity = transform.forward * currentVelocity;
+    }
+
+    private void LookAtMouse () {
         Vector3 mousePosition = Input.mousePosition;
         mousePosition.z = Camera.main.nearClipPlane;
         Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint (mousePosition);
         mouseWorldPosition.y = transform.position.y;
 
         transform.LookAt (mouseWorldPosition);
-        rb.velocity = transform.forward * currentVelocity;
     }
 }

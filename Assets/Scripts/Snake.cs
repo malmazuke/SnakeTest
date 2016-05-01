@@ -47,7 +47,8 @@ public class Snake : MonoBehaviour {
         while (previousNode != null) {
             GameObject segment = node.Value;
             segment.transform.LookAt (previousNode.Value.transform);
-            segment.GetComponent<Rigidbody> ().velocity = previousNode.Value.GetComponent<Rigidbody> ().velocity;
+            segment.transform.position = Vector3.Lerp (segment.transform.position, previousNode.Value.transform.position, idleSpeed * Time.deltaTime);
+
             node = previousNode;
             previousNode = node.Previous;
         }

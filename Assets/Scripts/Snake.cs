@@ -3,12 +3,12 @@ using System.Collections;
 
 public class Snake : MonoBehaviour {
     
-    public GameObject tail;
     public float idleSpeed = 5.0f;
     public float sprintSpeed = 10.0f;
     public float rotateSpeed = 5.0f;
     
-    private bool isAlive;
+    public bool isAlive { get; private set; }
+
     private Rigidbody rb;
     
     void Start () {
@@ -25,5 +25,9 @@ public class Snake : MonoBehaviour {
     
     private void MoveForward () {
         rb.velocity = transform.forward * idleSpeed;
+    }
+
+    public void MoveTowards (Vector3 position) {
+        transform.LookAt (position);
     }
 }

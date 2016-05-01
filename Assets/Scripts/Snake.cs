@@ -1,33 +1,63 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Snake : MonoBehaviour {
-    
+
+    public GameObject tailPrefab;
+    public int numberOfInitialTailSegments = 5;
     public float idleSpeed = 5.0f;
     public float sprintSpeed = 10.0f;
     public float rotateSpeed = 5.0f;
-    
+
     public bool isAlive { get; private set; }
 
     private Rigidbody rb;
-    
+    private LinkedList<GameObject> segments;
+
     void Start () {
         isAlive = true;
         rb = GetComponent<Rigidbody> ();
+
+        segments = new LinkedList<GameObject> ();
+        segments.AddLast (gameObject);
+        GameObject prevSegment = gameObject;
+        for (int i = 0; i < numberOfInitialTailSegments; i++) {
+            GameObject tailSegment = (GameObject)Object.Instantiate (tailPrefab);
+            Vector3 pos = prevSegment.transform.position;
+            pos.z = pos.z - prevSegment.GetComponent<SphereCollider> ().radius * 2.0f;
+            tailSegment.transform.position = pos;
+            segments.AddLast (tailSegment);
+            prevSegment = tailSegment;
+        }
     }
-    
+
     // Update is called once per frame
-    void Update () {
+    void FixedUpdate () {
         if (isAlive) {
             MoveForward ();
         }
     }
-    
-    private void MoveForward () {
-        rb.velocity = transform.forward * idleSpeed;
-    }
 
-    public void MoveTowards (Vector3 position) {
-        transform.LookAt (position);
+    private void MoveForward () {
+
+        // Starting tail to head
+        LinkedListNode<GameObject> node = segments.Last;
+        LinkedListNode<GameObject> previousNode = node.Previous;
+        while (previousNode != null) {
+            GameObject segment = node.Value;
+            segment.transform.LookAt (previousNode.Value.transform);
+            segment.GetComponent<Rigidbody> ().velocity = previousNode.Value.GetComponent<Rigidbody> ().velocity;
+            node = previousNode;
+            previousNode = node.Previous;
+        }
+
+        Vector3 mousePosition = Input.mousePosition;
+        mousePosition.z = Camera.main.nearClipPlane;
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint (mousePosition);
+        mouseWorldPosition.y = transform.position.y;
+
+        transform.LookAt (mouseWorldPosition);
+        rb.velocity = transform.forward * idleSpeed;
     }
 }

@@ -12,12 +12,14 @@ public class Snake : MonoBehaviour {
 
     public bool isAlive { get; private set; }
 
+    private float currentVelocity;
     private Rigidbody rb;
     private LinkedList<GameObject> segments;
 
     void Start () {
         isAlive = true;
         rb = GetComponent<Rigidbody> ();
+        currentVelocity = idleSpeed;
 
         segments = new LinkedList<GameObject> ();
         segments.AddLast (gameObject);
@@ -35,6 +37,11 @@ public class Snake : MonoBehaviour {
     // Update is called once per frame
     void FixedUpdate () {
         if (isAlive) {
+            if (Input.GetMouseButton (0)) {
+                currentVelocity = sprintSpeed;
+            } else {
+                currentVelocity = idleSpeed;
+            }
             MoveForward ();
         }
     }
@@ -47,7 +54,7 @@ public class Snake : MonoBehaviour {
         while (previousNode != null) {
             GameObject segment = node.Value;
             segment.transform.LookAt (previousNode.Value.transform);
-            segment.transform.position = Vector3.Lerp (segment.transform.position, previousNode.Value.transform.position, idleSpeed * Time.deltaTime);
+            segment.transform.position = Vector3.Lerp (segment.transform.position, previousNode.Value.transform.position, currentVelocity * Time.deltaTime);
 
             node = previousNode;
             previousNode = node.Previous;
@@ -59,6 +66,6 @@ public class Snake : MonoBehaviour {
         mouseWorldPosition.y = transform.position.y;
 
         transform.LookAt (mouseWorldPosition);
-        rb.velocity = transform.forward * idleSpeed;
+        rb.velocity = transform.forward * currentVelocity;
     }
 }
